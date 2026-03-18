@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -16,12 +17,17 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0e1035]/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a href="#" className="flex items-center gap-2">
-          <span className="text-xl font-bold tracking-tight text-white">
-            PLUMBERS<span className="text-red-600"> 911</span>
-          </span>
+          <Image
+            src="/logo.png"
+            alt="Plumbers 911"
+            width={160}
+            height={48}
+            className="h-10 w-auto"
+            priority
+          />
         </a>
 
         <div className="hidden items-center gap-6 md:flex">
@@ -36,7 +42,7 @@ export function Navbar() {
           ))}
           <a
             href="#apply"
-            className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            className="rounded-lg bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
           >
             Apply Now
           </a>
@@ -52,7 +58,7 @@ export function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-black/95 md:hidden">
+        <div className="border-t border-white/10 bg-[#0e1035]/95 md:hidden">
           <div className="flex flex-col gap-1 px-4 py-4">
             {navLinks.map((link) => (
               <a
@@ -67,7 +73,7 @@ export function Navbar() {
             <a
               href="#apply"
               onClick={() => setMobileOpen(false)}
-              className="mt-2 rounded-lg bg-red-600 px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-red-700"
+              className="mt-2 rounded-lg bg-brand px-5 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               Apply Now
             </a>

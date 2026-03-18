@@ -61,7 +61,7 @@ export function ApplyFormSection() {
 
   if (status === "success") {
     return (
-      <section id="apply" className="bg-zinc-900 py-24">
+      <section id="apply" className="bg-navy py-24">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-green-600/30 bg-green-600/10 p-12">
             <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-500" />
@@ -86,18 +86,18 @@ export function ApplyFormSection() {
   }
 
   return (
-    <section id="apply" className="bg-zinc-900 py-24">
+    <section id="apply" className="bg-navy py-24">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-600/30 bg-red-600/10 px-4 py-1.5">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
-            <span className="text-sm font-medium text-red-400">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-brand" />
+            <span className="text-sm font-medium text-brand-light">
               Now Accepting Applications
             </span>
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Ready to Earn What You&apos;re{" "}
-            <span className="text-red-500">Worth?</span>
+            <span className="text-brand">Worth?</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-zinc-400">
             Fill out the form below and our team will reach out within 48 hours
@@ -121,7 +121,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="John"
               />
             </div>
@@ -139,7 +139,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="Smith"
               />
             </div>
@@ -160,7 +160,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="john@email.com"
               />
             </div>
@@ -178,7 +178,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="(312) 555-0123"
               />
             </div>
@@ -198,7 +198,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.yearsExperience}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select experience</option>
                 <option value="5-10">5–10 years</option>
@@ -220,7 +220,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.hasLicense}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select</option>
                 <option value="yes">Yes — I have a Journeyman License</option>
@@ -244,7 +244,7 @@ export function ApplyFormSection() {
                 name="currentEmployer"
                 value={formData.currentEmployer}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 placeholder="Current company name"
               />
             </div>
@@ -261,7 +261,7 @@ export function ApplyFormSection() {
                 required
                 value={formData.availability}
                 onChange={handleChange}
-                className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">When can you start?</option>
                 <option value="immediately">Immediately</option>
@@ -285,14 +285,14 @@ export function ApplyFormSection() {
               rows={4}
               value={formData.message}
               onChange={handleChange}
-              className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+              className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white placeholder-zinc-500 transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="Tell us about your experience, specialties, or any questions..."
             />
           </div>
 
           {status === "error" && (
-            <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-4 text-center">
-              <p className="text-sm text-red-400">
+            <div className="rounded-lg border border-brand/30 bg-brand/10 p-4 text-center">
+              <p className="text-sm text-brand-light">
                 Something went wrong. Please try again or email us directly at{" "}
                 <a
                   href="mailto:Apply@Plumbers911Chicago.com"
@@ -307,7 +307,7 @@ export function ApplyFormSection() {
           <button
             type="submit"
             disabled={status === "submitting"}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-red-600/25 transition-all hover:bg-red-700 hover:shadow-red-600/40 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-8 py-4 text-lg font-bold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-brand/40 disabled:opacity-50"
           >
             {status === "submitting" ? (
               <>

@@ -35,11 +35,11 @@ const requirements = [
 
 export function RequirementsSection() {
   return (
-    <section id="requirements" className="bg-zinc-900 py-24">
+    <section id="requirements" className="bg-navy py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-16 lg:grid-cols-2">
           <div className="order-2 lg:order-1">
-            <div className="rounded-2xl border border-white/10 bg-zinc-800/50 p-8">
+            <div className="rounded-2xl border border-white/10 bg-navy-light/50 p-8">
               <h3 className="mb-6 text-xl font-bold text-white">
                 Quick Qualification Check
               </h3>
@@ -49,8 +49,8 @@ export function RequirementsSection() {
                     <div
                       className={`mt-0.5 flex-shrink-0 rounded-full p-1 ${
                         req.required
-                          ? "bg-red-600/20 text-red-500"
-                          : "bg-zinc-700 text-zinc-400"
+                          ? "bg-brand/20 text-brand"
+                          : "bg-navy-lighter text-zinc-400"
                       }`}
                     >
                       <req.icon className="h-4 w-4" />
@@ -58,7 +58,7 @@ export function RequirementsSection() {
                     <div>
                       <p className="text-zinc-300">{req.text}</p>
                       {req.required && (
-                        <span className="text-xs font-medium uppercase tracking-wider text-red-500">
+                        <span className="text-xs font-medium uppercase tracking-wider text-brand">
                           Required
                         </span>
                       )}
@@ -67,9 +67,9 @@ export function RequirementsSection() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-lg bg-red-600/10 p-4">
+              <div className="mt-8 rounded-lg bg-brand/10 p-4">
                 <p className="text-sm text-zinc-300">
-                  <span className="font-semibold text-red-400">
+                  <span className="font-semibold text-brand-light">
                     Meet these qualifications?
                   </span>{" "}
                   You&apos;re exactly who we&apos;re looking for. Scroll down
@@ -82,7 +82,7 @@ export function RequirementsSection() {
           <div className="order-1 lg:order-2">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Who We&apos;re{" "}
-              <span className="text-red-500">Looking For</span>
+              <span className="text-brand">Looking For</span>
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
               We work with experienced plumbers who are serious about their
@@ -97,7 +97,7 @@ export function RequirementsSection() {
             <div className="mt-8">
               <a
                 href="#apply"
-                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                className="inline-flex items-center gap-2 rounded-lg bg-brand px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-dark"
               >
                 I Qualify — Take Me to the Application
               </a>

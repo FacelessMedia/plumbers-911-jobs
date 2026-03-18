@@ -1,14 +1,19 @@
+import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-black py-12">
+    <footer className="border-t border-white/5 bg-navy-dark py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              PLUMBERS<span className="text-red-600"> 911</span>
-            </span>
+            <Image
+              src="/logo.png"
+              alt="Plumbers 911"
+              width={140}
+              height={42}
+              className="h-9 w-auto"
+            />
             <p className="mt-2 max-w-sm text-sm text-zinc-500">
               Connecting Chicago&apos;s top service plumbers with the
               highest-paying contractors in the metro area.

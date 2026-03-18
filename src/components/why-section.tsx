@@ -29,12 +29,12 @@ const reasons = [
 
 export function WhySection() {
   return (
-    <section id="why" className="bg-zinc-900 py-24">
+    <section id="why" className="bg-navy py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Why Plumbers Choose{" "}
-            <span className="text-red-500">Plumbers 911</span>
+            <span className="text-brand">Plumbers 911</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-400">
             We&apos;re not a job board. We&apos;re the bridge between
@@ -47,10 +47,10 @@ export function WhySection() {
           {reasons.map((reason) => (
             <div
               key={reason.title}
-              className="group rounded-xl border border-white/5 bg-zinc-800/50 p-6 transition-all hover:border-red-600/30 hover:bg-zinc-800"
+              className="group rounded-xl border border-white/5 bg-navy-light/50 p-6 transition-all hover:border-brand/30 hover:bg-navy-lighter/50"
             >
-              <div className="mb-4 inline-flex rounded-lg bg-red-600/10 p-3">
-                <reason.icon className="h-6 w-6 text-red-500" />
+              <div className="mb-4 inline-flex rounded-lg bg-brand/10 p-3">
+                <reason.icon className="h-6 w-6 text-brand" />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-white">
                 {reason.title}
