@@ -3,7 +3,7 @@ import { Wrench, MessageSquare, Star, Home, CheckCircle } from "lucide-react";
 const responsibilities = [
   {
     icon: Wrench,
-    text: "Diagnose, repair, and service residential plumbing systems across the Chicago area",
+    text: "Diagnose, repair, and service residential/commercial plumbing systems across the Chicagoland area",
   },
   {
     icon: CheckCircle,
@@ -34,9 +34,10 @@ export function WhatYouDoSection() {
               <span className="text-brand">Every Day</span>
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
-              You&apos;ll be placed with top residential service contractors in
-              the Chicago area — doing the work you already know, but with
-              compensation and respect that matches your experience.
+              You&apos;ll be placed with top residential and commercial service
+              contractors across the Chicagoland area — doing the work you
+              already know, but with compensation and respect that matches
+              your skills.
             </p>
 
             <div className="mt-10 space-y-6">

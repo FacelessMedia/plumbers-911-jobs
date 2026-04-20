@@ -29,14 +29,14 @@ export function UrgencySection() {
         <div className="mt-16 grid gap-8 sm:grid-cols-3">
           <div className="rounded-xl border border-brand/20 bg-brand/5 p-6 text-center">
             <Users className="mx-auto mb-3 h-8 w-8 text-brand" />
-            <p className="text-2xl font-bold text-white">Limited</p>
+            <p className="text-2xl font-bold text-white">12 Openings</p>
             <p className="mt-1 text-sm text-zinc-400">
               Positions Available Now
             </p>
           </div>
           <div className="rounded-xl border border-brand/20 bg-brand/5 p-6 text-center">
             <MapPin className="mx-auto mb-3 h-8 w-8 text-brand" />
-            <p className="text-2xl font-bold text-white">Chicago Metro</p>
+            <p className="text-2xl font-bold text-white">Chicagoland</p>
             <p className="mt-1 text-sm text-zinc-400">
               City + Surrounding Suburbs
             </p>

@@ -5,7 +5,7 @@ const reasons = [
     icon: TrendingUp,
     title: "Top-Tier Compensation",
     description:
-      "Our contractors pay what your skills are actually worth. No lowball offers, no empty promises — just real money for real experience.",
+      "Our contractors pay what your skills are actually worth — whether you're an apprentice or a master journeyman. No lowball offers, no empty promises.",
   },
   {
     icon: Shield,
@@ -17,13 +17,13 @@ const reasons = [
     icon: Users,
     title: "Elite Contractor Network",
     description:
-      "We partner with the most respected plumbing contractors in the Chicago metro area. You'll work with the best in the business.",
+      "We partner with the most respected plumbing contractors across the Chicagoland area. You'll work with the best in the business.",
   },
   {
     icon: Award,
     title: "Your Craft, Respected",
     description:
-      "No more being treated like a number. Our contractors value experienced plumbers and invest in long-term careers, not short-term labor.",
+      "No more being treated like a number. Our contractors value skilled plumbers at every level and invest in long-term careers, not short-term labor.",
   },
 ];
 

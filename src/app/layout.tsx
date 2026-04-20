@@ -10,7 +10,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Plumbers 911 | Chicago's Top-Paying Plumbing Positions",
   description:
-    "Earn $125K–$200K+ as a service plumber in Chicago. World-class benefits, pension, 401(k). Limited positions available. Apply now.",
+    "Plumbing jobs in Chicagoland — earn up to $60.50/hr. Apprentices to journeymen welcome. World-class benefits, pension, 401(k). Apply now.",
   keywords: [
     "plumber jobs Chicago",
     "service plumber hiring",
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     "plumber salary Chicago",
   ],
   openGraph: {
-    title: "Plumbers 911 | Earn $125K–$200K+ in Chicago",
+    title: "Plumbers 911 | Earn Up to $60.50/hr in Chicagoland",
     description:
-      "Chicago's top plumbing positions with world-class benefits. Limited spots — apply now.",
+      "Chicagoland plumbing positions for apprentices and journeymen. World-class benefits. 12 spots — apply now.",
     type: "website",
     url: "https://plumbers911jobs.com",
   },

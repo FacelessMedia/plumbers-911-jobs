@@ -29,10 +29,10 @@ export function HeroSection() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-zinc-400 sm:text-xl">
-          We connect elite service plumbers with the highest-paying contractors
-          in the Chicago metro area.{" "}
-          <span className="font-semibold text-white">$125K–$200K+</span> earning
-          potential with world-class benefits.
+          We connect skilled plumbers — from apprentices to journeymen — with the
+          highest-paying contractors across the Chicagoland area. Earn up to{" "}
+          <span className="font-semibold text-white">$60.50/hour</span> with
+          world-class benefits.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -53,10 +53,10 @@ export function HeroSection() {
 
         <div className="mt-16 grid grid-cols-2 gap-8 sm:grid-cols-4">
           {[
-            { value: "$200K+", label: "Earning Potential" },
+            { value: "$60.50/hr", label: "Top Hourly Rate" },
             { value: "100%", label: "Benefits Covered" },
             { value: "Pension", label: "+ 401(k)" },
-            { value: "5+", label: "Years Avg. Experience" },
+            { value: "12", label: "Open Positions" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl font-bold text-white sm:text-3xl">

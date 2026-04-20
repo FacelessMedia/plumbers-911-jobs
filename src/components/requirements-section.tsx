@@ -3,13 +3,13 @@ import { BadgeCheck, Clock, Award, Car, Wrench, MessageCircle } from "lucide-rea
 const requirements = [
   {
     icon: Clock,
-    text: "5+ years of residential plumbing experience",
+    text: "2+ years of service plumbing experience",
     required: true,
   },
   {
     icon: Award,
-    text: "Journeyman Plumbing License",
-    required: true,
+    text: "Plumbing License (Journeyman preferred, apprentices welcome)",
+    required: false,
   },
   {
     icon: Wrench,
@@ -85,13 +85,15 @@ export function RequirementsSection() {
               <span className="text-brand">Looking For</span>
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
-              We work with experienced plumbers who are serious about their
-              careers. If you have the license, the skills, and the drive — we
-              have the position.
+              We work with plumbers at every stage — from apprentices to
+              seasoned journeymen — who are serious about building a real
+              career. If you have the skills and the drive, we have the
+              position.
             </p>
             <p className="mt-4 text-lg text-zinc-400">
-              This isn&apos;t for everyone. We&apos;re selective because our
-              contractors expect the best — and they pay accordingly.
+              Whether you&apos;re just getting started or you&apos;ve been
+              in the trade for decades, we&apos;ll match you with the right
+              contractor that pays what your skills are worth.
             </p>
 
             <div className="mt-8">

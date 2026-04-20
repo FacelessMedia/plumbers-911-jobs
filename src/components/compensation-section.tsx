@@ -3,14 +3,14 @@ import { DollarSign, PiggyBank, Clock, TrendingUp } from "lucide-react";
 const compensationItems = [
   {
     icon: DollarSign,
-    title: "Base Earnings",
-    value: "$125,000",
-    description: "Strong base compensation for experienced service plumbers",
+    title: "Hourly Pay Range",
+    value: "$20.55–$60.50/hr",
+    description: "From apprentice to journeyman — pay that matches your skill level",
   },
   {
     icon: TrendingUp,
-    title: "Total Potential",
-    value: "$200,000+",
+    title: "Earning Potential",
+    value: "Six Figures+",
     description: "Based on hours worked — the more you work, the more you earn",
   },
   {
@@ -39,8 +39,8 @@ export function CompensationSection() {
             <span className="text-brand">Matches Your Skills</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-400">
-            Stop leaving money on the table. Our contractors pay top dollar for
-            experienced plumbers — and your retirement is funded on top of it.
+            From apprentices to master journeymen — our contractors pay top dollar
+            at every level, and your retirement is funded on top of it.
           </p>
         </div>
 

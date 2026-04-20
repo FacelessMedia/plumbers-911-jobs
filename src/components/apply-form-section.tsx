@@ -201,6 +201,7 @@ export function ApplyFormSection() {
                 className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select experience</option>
+                <option value="2-5">2–5 years</option>
                 <option value="5-10">5–10 years</option>
                 <option value="10-15">10–15 years</option>
                 <option value="15-20">15–20 years</option>
@@ -212,7 +213,7 @@ export function ApplyFormSection() {
                 htmlFor="hasLicense"
                 className="mb-2 block text-sm font-medium text-zinc-300"
               >
-                Journeyman License? *
+                Plumbing License? *
               </label>
               <select
                 id="hasLicense"
