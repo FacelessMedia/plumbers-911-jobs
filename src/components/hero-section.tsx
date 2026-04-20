@@ -56,7 +56,7 @@ export function HeroSection() {
             { value: "$60.50/hr", label: "Top Hourly Rate" },
             { value: "100%", label: "Benefits Covered" },
             { value: "Pension", label: "+ 401(k)" },
-            { value: "12", label: "Open Positions" },
+            { value: "4", label: "Open Positions" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl font-bold text-white sm:text-3xl">

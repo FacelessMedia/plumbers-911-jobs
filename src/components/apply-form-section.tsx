@@ -10,6 +10,7 @@ interface FormData {
   phone: string;
   yearsExperience: string;
   hasLicense: string;
+  apprenticeLicenseDate: string;
   currentEmployer: string;
   availability: string;
   message: string;
@@ -22,6 +23,7 @@ const initialFormData: FormData = {
   phone: "",
   yearsExperience: "",
   hasLicense: "",
+  apprenticeLicenseDate: "",
   currentEmployer: "",
   availability: "",
   message: "",
@@ -224,12 +226,36 @@ export function ApplyFormSection() {
                 className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select</option>
-                <option value="yes">Yes — I have a Journeyman License</option>
-                <option value="in-progress">In progress / Apprentice</option>
-                <option value="no">No</option>
+                <option value="apprentice">Apprentice License</option>
+                <option value="chicago-journeyman">City of Chicago Journeyman License</option>
+                <option value="illinois-journeyman">Illinois State Journeyman License</option>
+                <option value="none">None</option>
               </select>
             </div>
           </div>
+
+          {formData.hasLicense === "apprentice" && (
+            <div>
+              <label
+                htmlFor="apprenticeLicenseDate"
+                className="mb-2 block text-sm font-medium text-zinc-300"
+              >
+                Apprentice License Start Date *
+              </label>
+              <input
+                type="date"
+                id="apprenticeLicenseDate"
+                name="apprenticeLicenseDate"
+                required
+                value={formData.apprenticeLicenseDate}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+              <p className="mt-1 text-xs text-zinc-500">
+                Date shown on your apprentice license.
+              </p>
+            </div>
+          )}
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
@@ -296,10 +322,10 @@ export function ApplyFormSection() {
               <p className="text-sm text-brand-light">
                 Something went wrong. Please try again or email us directly at{" "}
                 <a
-                  href="mailto:Apply@Plumbers911Chicago.com"
+                  href="mailto:apply@plumbers911hiring.com"
                   className="font-semibold underline"
                 >
-                  Apply@Plumbers911Chicago.com
+                  apply@plumbers911hiring.com
                 </a>
               </p>
             </div>

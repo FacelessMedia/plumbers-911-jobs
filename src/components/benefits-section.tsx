@@ -4,7 +4,6 @@ import {
   Smile,
   Landmark,
   Wallet,
-  CalendarCheck,
   GraduationCap,
   ShieldCheck,
 } from "lucide-react";
@@ -34,11 +33,6 @@ const benefits = [
     icon: Wallet,
     title: "401(k)",
     description: "Employer-contributed 401(k) on top of your pension",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Paid Time Off",
-    description: "Paid vacation and holidays — because you've earned it",
   },
   {
     icon: GraduationCap,
