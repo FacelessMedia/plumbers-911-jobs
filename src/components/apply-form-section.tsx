@@ -322,10 +322,10 @@ export function ApplyFormSection() {
               <p className="text-sm text-brand-light">
                 Something went wrong. Please try again or email us directly at{" "}
                 <a
-                  href="mailto:apply@plumbers911hiring.com"
+                  href="mailto:apply@plumbers911jobs.com"
                   className="font-semibold underline"
                 >
-                  apply@plumbers911hiring.com
+                  apply@plumbers911jobs.com
                 </a>
               </p>
             </div>

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Plumbers 911 | Earn Up to $60.50/hr in Chicagoland",
     description:
-      "Chicagoland plumbing positions for apprentices and journeymen. World-class benefits. 12 spots — apply now.",
+      "Chicagoland plumbing positions for apprentices and journeymen. World-class benefits. Apply now.",
     type: "website",
     url: "https://plumbers911jobs.com",
   },
