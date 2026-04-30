@@ -155,7 +155,11 @@ async function uploadFilesToGhl(
     for (const file of files) {
       // Field name format required by GHL: `<customFieldId>_<unique-id>`
       const key = `${customFieldId}_${randomUUID()}`;
-      fd.append(key, file, file.name);
+      // Re-wrap as a fresh Blob so we're not re-using an already-consumed stream
+      // from the incoming Request.formData().
+      const buf = await file.arrayBuffer();
+      const blob = new Blob([buf], { type: file.type || "application/octet-stream" });
+      fd.append(key, blob, file.name);
     }
     const url =
       `${GHL_API_BASE}/forms/upload-custom-files` +
@@ -171,13 +175,14 @@ async function uploadFilesToGhl(
       },
       body: fd,
     });
+    const bodyText = await res.text().catch(() => "");
     if (!res.ok) {
-      console.error(
-        `GHL file upload failed (${res.status}):`,
-        await res.text().catch(() => ""),
-      );
+      console.error(`GHL file upload failed (${res.status}):`, bodyText);
       return 0;
     }
+    console.log(
+      `GHL file upload succeeded for contact ${contactId}: uploaded ${files.length} file(s)`,
+    );
     return files.length;
   } catch (err) {
     console.error("GHL file upload fetch failed:", err);
@@ -501,7 +506,20 @@ export async function POST(request: Request) {
     }
     console.log("=======================");
 
-    return NextResponse.json({ success: true, message: "Application received" });
+    return NextResponse.json({
+      success: true,
+      message: "Application received",
+      debug: {
+        method: forwardResult.ok ? forwardResult.method : "none",
+        contactId:
+          forwardResult.ok && forwardResult.method === "api"
+            ? forwardResult.contactId
+            : undefined,
+        filesAttached: fileEntries.length,
+        filesUploaded: forwardResult.ok ? forwardResult.filesUploaded : 0,
+        reason: forwardResult.ok ? undefined : forwardResult.reason,
+      },
+    });
   } catch (error) {
     console.error("apply route error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
