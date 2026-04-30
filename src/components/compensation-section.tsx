@@ -5,7 +5,7 @@ const compensationItems = [
     icon: DollarSign,
     title: "Hourly Pay Range",
     value: "$20.55–$60.50/hr",
-    description: "From apprentice to journeyman — pay that matches your skill level",
+    description: "From apprentice to journeyperson — pay that matches your skill level",
   },
   {
     icon: TrendingUp,
@@ -39,7 +39,7 @@ export function CompensationSection() {
             <span className="text-brand">Matches Your Skills</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-zinc-400">
-            From apprentices to master journeymen — our contractors pay top dollar
+            From apprentices to journeypeople — our contractors pay top dollar
             at every level, and your retirement is funded on top of it.
           </p>
         </div>

@@ -29,7 +29,7 @@ export function HeroSection() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-zinc-400 sm:text-xl">
-          We connect skilled plumbers — from apprentices to journeymen — with the
+          We connect skilled plumbers — from apprentices to journeypeople — with the
           highest-paying contractors across the Chicagoland area. Earn up to{" "}
           <span className="font-semibold text-white">$60.50/hour</span> with
           world-class benefits.

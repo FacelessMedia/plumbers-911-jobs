@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Send, CheckCircle, Loader2 } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { Send, CheckCircle, Loader2, Upload, X, FileText } from "lucide-react";
 
-interface FormData {
+interface FormState {
   firstName: string;
   lastName: string;
   email: string;
@@ -16,7 +16,7 @@ interface FormData {
   message: string;
 }
 
-const initialFormData: FormData = {
+const initialFormState: FormState = {
   firstName: "",
   lastName: "",
   email: "",
@@ -29,14 +29,74 @@ const initialFormData: FormData = {
   message: "",
 };
 
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/heic",
+  "image/heif",
+  "image/webp",
+];
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_FILES = 5;
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function ApplyFormSection() {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<FormState>(initialFormState);
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = Array.from(e.target.files ?? []);
+    setFileError(null);
+
+    const accepted: File[] = [];
+    let firstRejection: string | null = null;
+
+    for (const file of incoming) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        firstRejection = firstRejection ?? `${file.name}: file type not allowed (PDF or image only)`;
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        firstRejection = firstRejection ?? `${file.name}: too large (max 10 MB)`;
+        continue;
+      }
+      accepted.push(file);
+    }
+
+    setFiles((prev) => {
+      const combined = [...prev, ...accepted];
+      if (combined.length > MAX_FILES) {
+        firstRejection = firstRejection ?? `Only ${MAX_FILES} files max — extras were dropped.`;
+        return combined.slice(0, MAX_FILES);
+      }
+      return combined;
+    });
+
+    if (firstRejection) setFileError(firstRejection);
+
+    // Reset native input so the same file can be picked again after removal.
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeFile = (idx: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+    setFileError(null);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -44,15 +104,21 @@ export function ApplyFormSection() {
     setStatus("submitting");
 
     try {
+      const fd = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        fd.append(key, value);
+      });
+      files.forEach((file) => fd.append("files", file, file.name));
+
       const response = await fetch("/api/apply", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: fd,
       });
 
       if (response.ok) {
         setStatus("success");
-        setFormData(initialFormData);
+        setFormData(initialFormState);
+        setFiles([]);
       } else {
         setStatus("error");
       }
@@ -227,8 +293,8 @@ export function ApplyFormSection() {
               >
                 <option value="">Select</option>
                 <option value="apprentice">Apprentice License</option>
-                <option value="chicago-journeyman">City of Chicago Journeyman License</option>
-                <option value="illinois-journeyman">Illinois State Journeyman License</option>
+                <option value="chicago-journeyperson">City of Chicago Journeyperson License</option>
+                <option value="illinois-journeyperson">Illinois State Journeyperson License</option>
                 <option value="none">None</option>
               </select>
             </div>
@@ -296,6 +362,72 @@ export function ApplyFormSection() {
                 <option value="1-month">Within 1 month</option>
                 <option value="flexible">Flexible</option>
               </select>
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="resume"
+              className="mb-2 block text-sm font-medium text-zinc-300"
+            >
+              Resume / Supporting Documents (Optional)
+            </label>
+            <div className="rounded-lg border border-dashed border-white/15 bg-navy-light/50 p-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="resume"
+                name="resume"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,application/pdf,image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="resume"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 py-4 text-center"
+              >
+                <Upload className="h-6 w-6 text-zinc-400" />
+                <span className="text-sm font-medium text-zinc-300">
+                  Click to upload or drag &amp; drop
+                </span>
+                <span className="text-xs text-zinc-500">
+                  PDF or images (JPG, PNG, HEIC, WEBP) — up to {MAX_FILES} files, 10 MB each
+                </span>
+              </label>
+
+              {files.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {files.map((file, idx) => (
+                    <li
+                      key={`${file.name}-${idx}`}
+                      className="flex items-center justify-between gap-3 rounded-md border border-white/5 bg-navy-light px-3 py-2"
+                    >
+                      <div className="flex min-w-0 items-center gap-2">
+                        <FileText className="h-4 w-4 flex-shrink-0 text-brand-light" />
+                        <span className="truncate text-sm text-zinc-200">
+                          {file.name}
+                        </span>
+                        <span className="flex-shrink-0 text-xs text-zinc-500">
+                          {formatBytes(file.size)}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(idx)}
+                        className="flex-shrink-0 rounded p-1 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                        aria-label={`Remove ${file.name}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {fileError && (
+                <p className="mt-2 text-xs text-brand-light">{fileError}</p>
+              )}
             </div>
           </div>
 

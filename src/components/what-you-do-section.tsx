@@ -11,7 +11,7 @@ const responsibilities = [
   },
   {
     icon: MessageSquare,
-    text: "Communicate clearly with homeowners — explain issues and solutions professionally",
+    text: "Communicate clearly with customers — explain issues and solutions professionally",
   },
   {
     icon: Home,

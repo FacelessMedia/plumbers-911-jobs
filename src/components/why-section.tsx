@@ -5,7 +5,7 @@ const reasons = [
     icon: TrendingUp,
     title: "Top-Tier Compensation",
     description:
-      "Our contractors pay what your skills are actually worth — whether you're an apprentice or a master journeyman. No lowball offers, no empty promises.",
+      "Our contractors pay what your skills are actually worth — whether you're an apprentice or a journeyperson. No lowball offers, no empty promises.",
   },
   {
     icon: Shield,

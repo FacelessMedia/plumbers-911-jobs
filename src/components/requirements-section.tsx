@@ -8,7 +8,7 @@ const requirements = [
   },
   {
     icon: Award,
-    text: "Plumbing License (Journeyman preferred, apprentices welcome)",
+    text: "Plumbing License (Journeyperson preferred, apprentices welcome)",
     required: false,
   },
   {
@@ -86,7 +86,7 @@ export function RequirementsSection() {
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
               We work with plumbers at every stage — from apprentices to
-              seasoned journeymen — who are serious about building a real
+              seasoned journeypeople — who are serious about building a real
               career. If you have the skills and the drive, we have the
               position.
             </p>
