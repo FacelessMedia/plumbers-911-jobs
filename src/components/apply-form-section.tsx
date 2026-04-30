@@ -31,12 +31,12 @@ const initialFormState: FormState = {
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/heic",
-  "image/heif",
-  "image/webp",
+  "image/gif",
 ];
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
@@ -69,7 +69,7 @@ export function ApplyFormSection() {
 
     for (const file of incoming) {
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        firstRejection = firstRejection ?? `${file.name}: file type not allowed (PDF or image only)`;
+        firstRejection = firstRejection ?? `${file.name}: file type not allowed (PDF, DOC/DOCX, or image only)`;
         continue;
       }
       if (file.size > MAX_FILE_SIZE_BYTES) {
@@ -378,7 +378,7 @@ export function ApplyFormSection() {
                 id="resume"
                 name="resume"
                 multiple
-                accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,.webp,application/pdf,image/*"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png,image/gif"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -391,7 +391,7 @@ export function ApplyFormSection() {
                   Click to upload or drag &amp; drop
                 </span>
                 <span className="text-xs text-zinc-500">
-                  PDF or images (JPG, PNG, HEIC, WEBP) — up to {MAX_FILES} files, 10 MB each
+                  PDF, DOC/DOCX, or images (JPG, PNG, GIF) — up to {MAX_FILES} files, 10 MB each
                 </span>
               </label>
 

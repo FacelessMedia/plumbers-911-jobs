@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { randomUUID } from "node:crypto";
 
 // --- Env -----------------------------------------------------------------
 const GHL_WEBHOOK_URL = process.env.GHL_WEBHOOK_URL;
@@ -41,14 +41,16 @@ const KEY_RESUME_FILES = normalizeFieldKey(
 );
 
 // --- File upload constraints --------------------------------------------
+// Must match GHL's accepted types for /forms/upload-custom-files.
+// (GHL does NOT accept HEIC/WEBP.)
 const ALLOWED_FILE_TYPES = new Set([
   "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/heic",
-  "image/heif",
-  "image/webp",
+  "image/gif",
 ]);
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
@@ -69,25 +71,14 @@ interface ApplicationData {
   currentEmployer: string | null;
   availability: string;
   message: string | null;
-  resumeUrls: string[];
 }
 
 type ForwardResult =
-  | { method: "webhook"; ok: true }
-  | { method: "api"; ok: true; contactId?: string }
+  | { method: "webhook"; ok: true; filesUploaded: number }
+  | { method: "api"; ok: true; contactId?: string; filesUploaded: number }
   | { method: "none"; ok: false; reason: string };
 
 // --- Helpers ------------------------------------------------------------
-function sanitizeFilename(name: string): string {
-  // Strip directory separators, keep extension. Replace anything sketchy.
-  return (
-    name
-      .replace(/[/\\]/g, "_")
-      .replace(/[^a-zA-Z0-9._-]/g, "_")
-      .slice(0, 120) || "upload"
-  );
-}
-
 type CustomFieldEntry = { key: string; field_value: string | string[] };
 
 function buildCustomFields(payload: ApplicationData): CustomFieldEntry[] {
@@ -111,10 +102,9 @@ function buildCustomFields(payload: ApplicationData): CustomFieldEntry[] {
   if (KEY_MESSAGE && payload.message) {
     out.push({ key: KEY_MESSAGE, field_value: payload.message });
   }
-  // Resume Upload is a FILE_UPLOAD type in GHL — expects an array of URLs.
-  if (KEY_RESUME_FILES && payload.resumeUrls.length > 0) {
-    out.push({ key: KEY_RESUME_FILES, field_value: payload.resumeUrls });
-  }
+  // NOTE: Resume Upload field is NOT populated here. FILE_UPLOAD custom fields
+  // can only be filled via POST /forms/upload-custom-files (multipart).
+  // See uploadFilesToGhl() below.
 
   return out;
 }
@@ -146,6 +136,52 @@ async function tryWebhook(payload: ApplicationData): Promise<boolean> {
   } catch (err) {
     console.error("GHL webhook fetch failed:", err);
     return false;
+  }
+}
+
+// Upload files to a FILE_UPLOAD custom field on an existing contact.
+// Returns the number of files successfully uploaded.
+// See: https://marketplace.gohighlevel.com/docs/ghl/forms/upload-to-custom-fields
+async function uploadFilesToGhl(
+  contactId: string,
+  files: File[],
+  customFieldId: string,
+): Promise<number> {
+  if (!GHL_API_KEY || !GHL_LOCATION_ID || files.length === 0 || !customFieldId) {
+    return 0;
+  }
+  try {
+    const fd = new FormData();
+    for (const file of files) {
+      // Field name format required by GHL: `<customFieldId>_<unique-id>`
+      const key = `${customFieldId}_${randomUUID()}`;
+      fd.append(key, file, file.name);
+    }
+    const url =
+      `${GHL_API_BASE}/forms/upload-custom-files` +
+      `?contactId=${encodeURIComponent(contactId)}` +
+      `&locationId=${encodeURIComponent(GHL_LOCATION_ID)}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GHL_API_KEY}`,
+        Version: "2021-07-28",
+        Accept: "application/json",
+        // NOTE: do NOT set Content-Type — let fetch set the multipart boundary.
+      },
+      body: fd,
+    });
+    if (!res.ok) {
+      console.error(
+        `GHL file upload failed (${res.status}):`,
+        await res.text().catch(() => ""),
+      );
+      return 0;
+    }
+    return files.length;
+  } catch (err) {
+    console.error("GHL file upload fetch failed:", err);
+    return 0;
   }
 }
 
@@ -203,8 +239,9 @@ async function getCustomFieldKeyToIdMap(): Promise<Record<string, string>> {
 
 async function tryRestApi(
   payload: ApplicationData,
-): Promise<{ ok: boolean; contactId?: string }> {
-  if (!GHL_LOCATION_ID || !GHL_API_KEY) return { ok: false };
+  files: File[],
+): Promise<{ ok: boolean; contactId?: string; filesUploaded: number }> {
+  if (!GHL_LOCATION_ID || !GHL_API_KEY) return { ok: false, filesUploaded: 0 };
 
   const keyEntries = buildCustomFields(payload);
   const keyToId = await getCustomFieldKeyToIdMap();
@@ -251,7 +288,7 @@ async function tryRestApi(
         `GHL REST contact create failed (${res.status}):`,
         await res.text().catch(() => ""),
       );
-      return { ok: false };
+      return { ok: false, filesUploaded: 0 };
     }
 
     const result = (await res.json().catch(() => null)) as
@@ -259,8 +296,20 @@ async function tryRestApi(
       | null;
     const contactId = result?.contact?.id;
 
-    // Best-effort: also attach a structured note containing everything
-    // (useful as a single-glance summary even when custom fields are populated).
+    // Upload resume files to the Resume Upload custom field (FILE_UPLOAD type).
+    let filesUploaded = 0;
+    if (contactId && files.length > 0) {
+      const resumeFieldId = keyToId[KEY_RESUME_FILES];
+      if (resumeFieldId) {
+        filesUploaded = await uploadFilesToGhl(contactId, files, resumeFieldId);
+      } else {
+        console.warn(
+          `Resume Upload field key "${KEY_RESUME_FILES}" not found in GHL location — skipping file upload.`,
+        );
+      }
+    }
+
+    // Best-effort: attach a structured note (single-glance summary).
     if (contactId) {
       const note = [
         `Years experience: ${payload.yearsExperience}`,
@@ -271,8 +320,8 @@ async function tryRestApi(
         payload.currentEmployer ? `Current employer: ${payload.currentEmployer}` : null,
         `Availability: ${payload.availability}`,
         payload.message ? `Message: ${payload.message}` : null,
-        payload.resumeUrls.length > 0
-          ? `Resume files:\n${payload.resumeUrls.join("\n")}`
+        files.length > 0
+          ? `Files uploaded: ${filesUploaded}/${files.length} — see Resume Upload custom field.`
           : null,
         `Submitted: ${new Date().toISOString()}`,
       ]
@@ -295,21 +344,34 @@ async function tryRestApi(
       }
     }
 
-    return { ok: true, contactId };
+    return { ok: true, contactId, filesUploaded };
   } catch (err) {
     console.error("GHL REST fetch failed:", err);
-    return { ok: false };
+    return { ok: false, filesUploaded: 0 };
   }
 }
 
-async function forwardToGHL(payload: ApplicationData): Promise<ForwardResult> {
-  if (await tryWebhook(payload)) {
-    return { method: "webhook", ok: true };
+async function forwardToGHL(
+  payload: ApplicationData,
+  files: File[],
+): Promise<ForwardResult> {
+  // Prefer REST API when credentials are present — it's the only path that
+  // can upload files to the FILE_UPLOAD custom field.
+  if (GHL_LOCATION_ID && GHL_API_KEY) {
+    const apiResult = await tryRestApi(payload, files);
+    if (apiResult.ok) {
+      return {
+        method: "api",
+        ok: true,
+        contactId: apiResult.contactId,
+        filesUploaded: apiResult.filesUploaded,
+      };
+    }
   }
 
-  const apiResult = await tryRestApi(payload);
-  if (apiResult.ok) {
-    return { method: "api", ok: true, contactId: apiResult.contactId };
+  // Fallback: webhook (data only — file uploads not supported here).
+  if (await tryWebhook(payload)) {
+    return { method: "webhook", ok: true, filesUploaded: 0 };
   }
 
   const reason =
@@ -400,36 +462,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Upload to Vercel Blob if any files present and BLOB_READ_WRITE_TOKEN set.
-    const resumeUrls: string[] = [];
-    if (fileEntries.length > 0) {
-      if (!process.env.BLOB_READ_WRITE_TOKEN) {
-        console.error(
-          "Files uploaded but BLOB_READ_WRITE_TOKEN is not configured. Skipping upload.",
-        );
-      } else {
-        const stamp = Date.now();
-        const safeFolder = sanitizeFilename(`${lastName}-${firstName}`).toLowerCase();
-        for (const file of fileEntries) {
-          try {
-            const filename = sanitizeFilename(file.name);
-            const blob = await put(
-              `applications/${stamp}-${safeFolder}/${filename}`,
-              file,
-              {
-                access: "public",
-                addRandomSuffix: true,
-                contentType: file.type,
-              },
-            );
-            resumeUrls.push(blob.url);
-          } catch (uploadErr) {
-            console.error(`Failed to upload ${file.name}:`, uploadErr);
-          }
-        }
-      }
-    }
-
     const payload: ApplicationData = {
       firstName,
       lastName,
@@ -441,10 +473,9 @@ export async function POST(request: Request) {
       currentEmployer: currentEmployer || null,
       availability,
       message: message || null,
-      resumeUrls,
     };
 
-    const forwardResult = await forwardToGHL(payload);
+    const forwardResult = await forwardToGHL(payload, fileEntries);
 
     console.log("=== NEW APPLICATION ===");
     console.log(`Name: ${firstName} ${lastName}`);
@@ -458,12 +489,11 @@ export async function POST(request: Request) {
     console.log(`Current Employer: ${currentEmployer || "Not provided"}`);
     console.log(`Availability: ${availability}`);
     console.log(`Message: ${message || "None"}`);
-    console.log(`Files uploaded: ${resumeUrls.length}`);
-    resumeUrls.forEach((url, i) => console.log(`  [${i + 1}] ${url}`));
+    console.log(`Files attached: ${fileEntries.length}`);
     if (forwardResult.ok) {
       const detail =
         forwardResult.method === "api" && forwardResult.contactId
-          ? ` (contact ${forwardResult.contactId})`
+          ? ` (contact ${forwardResult.contactId}, files ${forwardResult.filesUploaded}/${fileEntries.length})`
           : "";
       console.log(`GHL forwarding: ${forwardResult.method}${detail}`);
     } else {
