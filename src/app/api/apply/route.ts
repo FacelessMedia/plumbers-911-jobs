@@ -8,14 +8,37 @@ const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
 const GHL_API_KEY = process.env.GHL_API_KEY;
 const GHL_API_BASE = "https://services.leadconnectorhq.com";
 
-// Custom field IDs created in GHL — set after the team creates the fields.
-const GHL_CF_YEARS_EXPERIENCE = process.env.GHL_CF_YEARS_EXPERIENCE;
-const GHL_CF_LICENSE = process.env.GHL_CF_LICENSE;
-const GHL_CF_APPRENTICE_DATE = process.env.GHL_CF_APPRENTICE_DATE;
-const GHL_CF_CURRENT_EMPLOYER = process.env.GHL_CF_CURRENT_EMPLOYER;
-const GHL_CF_AVAILABILITY = process.env.GHL_CF_AVAILABILITY;
-const GHL_CF_MESSAGE = process.env.GHL_CF_MESSAGE;
-const GHL_CF_RESUME_URLS = process.env.GHL_CF_RESUME_URLS;
+// GHL custom field *keys* (not IDs). These are the stable "Unique Keys" shown in
+// GHL Settings -> Custom Fields. They're stripped out of any merge-token syntax
+// the user may paste (e.g. `{{ contact.years_of_experience }}` -> `years_of_experience`).
+function normalizeFieldKey(raw: string | undefined, fallback: string): string {
+  if (!raw) return fallback;
+  const trimmed = raw.trim();
+  // Accept the full GHL merge token and strip it down to just the key.
+  const mergeMatch = trimmed.match(/\{\{\s*contact\.([a-zA-Z0-9_]+)\s*\}\}/);
+  if (mergeMatch) return mergeMatch[1];
+  return trimmed;
+}
+
+const KEY_YEARS_EXPERIENCE = normalizeFieldKey(
+  process.env.GHL_CF_YEARS_EXPERIENCE,
+  "years_of_experience",
+);
+const KEY_LICENSE = normalizeFieldKey(process.env.GHL_CF_LICENSE, "plumbing_license");
+const KEY_APPRENTICE_DATE = normalizeFieldKey(
+  process.env.GHL_CF_APPRENTICE_DATE,
+  "apprentice_license_date",
+);
+const KEY_CURRENT_EMPLOYER = normalizeFieldKey(
+  process.env.GHL_CF_CURRENT_EMPLOYER,
+  "current_employer",
+);
+const KEY_AVAILABILITY = normalizeFieldKey(process.env.GHL_CF_AVAILABILITY, "availability");
+const KEY_MESSAGE = normalizeFieldKey(process.env.GHL_CF_MESSAGE, "application_message");
+const KEY_RESUME_FILES = normalizeFieldKey(
+  process.env.GHL_CF_RESUME_FILES ?? process.env.GHL_CF_RESUME_URLS,
+  "resume_upload",
+);
 
 // --- File upload constraints --------------------------------------------
 const ALLOWED_FILE_TYPES = new Set([
@@ -65,29 +88,32 @@ function sanitizeFilename(name: string): string {
   );
 }
 
-function buildCustomFields(payload: ApplicationData) {
-  const out: Array<{ id: string; field_value: string }> = [];
+type CustomFieldEntry = { key: string; field_value: string | string[] };
 
-  if (GHL_CF_YEARS_EXPERIENCE) {
-    out.push({ id: GHL_CF_YEARS_EXPERIENCE, field_value: payload.yearsExperience });
+function buildCustomFields(payload: ApplicationData): CustomFieldEntry[] {
+  const out: CustomFieldEntry[] = [];
+
+  if (KEY_YEARS_EXPERIENCE && payload.yearsExperience) {
+    out.push({ key: KEY_YEARS_EXPERIENCE, field_value: payload.yearsExperience });
   }
-  if (GHL_CF_LICENSE) {
-    out.push({ id: GHL_CF_LICENSE, field_value: payload.hasLicense });
+  if (KEY_LICENSE && payload.hasLicense) {
+    out.push({ key: KEY_LICENSE, field_value: payload.hasLicense });
   }
-  if (GHL_CF_APPRENTICE_DATE && payload.apprenticeLicenseDate) {
-    out.push({ id: GHL_CF_APPRENTICE_DATE, field_value: payload.apprenticeLicenseDate });
+  if (KEY_APPRENTICE_DATE && payload.apprenticeLicenseDate) {
+    out.push({ key: KEY_APPRENTICE_DATE, field_value: payload.apprenticeLicenseDate });
   }
-  if (GHL_CF_CURRENT_EMPLOYER && payload.currentEmployer) {
-    out.push({ id: GHL_CF_CURRENT_EMPLOYER, field_value: payload.currentEmployer });
+  if (KEY_CURRENT_EMPLOYER && payload.currentEmployer) {
+    out.push({ key: KEY_CURRENT_EMPLOYER, field_value: payload.currentEmployer });
   }
-  if (GHL_CF_AVAILABILITY) {
-    out.push({ id: GHL_CF_AVAILABILITY, field_value: payload.availability });
+  if (KEY_AVAILABILITY && payload.availability) {
+    out.push({ key: KEY_AVAILABILITY, field_value: payload.availability });
   }
-  if (GHL_CF_MESSAGE && payload.message) {
-    out.push({ id: GHL_CF_MESSAGE, field_value: payload.message });
+  if (KEY_MESSAGE && payload.message) {
+    out.push({ key: KEY_MESSAGE, field_value: payload.message });
   }
-  if (GHL_CF_RESUME_URLS && payload.resumeUrls.length > 0) {
-    out.push({ id: GHL_CF_RESUME_URLS, field_value: payload.resumeUrls.join("\n") });
+  // Resume Upload is a FILE_UPLOAD type in GHL — expects an array of URLs.
+  if (KEY_RESUME_FILES && payload.resumeUrls.length > 0) {
+    out.push({ key: KEY_RESUME_FILES, field_value: payload.resumeUrls });
   }
 
   return out;
@@ -123,12 +149,79 @@ async function tryWebhook(payload: ApplicationData): Promise<boolean> {
   }
 }
 
+// Cache GHL custom-field key -> ID map per Lambda cold start. GHL's v2 API
+// needs IDs in the `customFields` payload, but humans configure keys, so we
+// resolve at runtime once and hold onto the result.
+let customFieldKeyToIdPromise: Promise<Record<string, string>> | null = null;
+
+async function getCustomFieldKeyToIdMap(): Promise<Record<string, string>> {
+  if (!customFieldKeyToIdPromise) {
+    customFieldKeyToIdPromise = (async () => {
+      if (!GHL_LOCATION_ID || !GHL_API_KEY) return {};
+      try {
+        const res = await fetch(
+          `${GHL_API_BASE}/locations/${GHL_LOCATION_ID}/customFields`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${GHL_API_KEY}`,
+              Version: "2021-07-28",
+              Accept: "application/json",
+            },
+          },
+        );
+        if (!res.ok) {
+          console.error(
+            `GHL customFields list failed (${res.status}):`,
+            await res.text().catch(() => ""),
+          );
+          return {};
+        }
+        const json = (await res.json().catch(() => null)) as
+          | { customFields?: Array<{ id?: string; fieldKey?: string }> }
+          | null;
+        const map: Record<string, string> = {};
+        for (const f of json?.customFields ?? []) {
+          if (f.id && f.fieldKey) {
+            // fieldKey comes back as e.g. "contact.years_of_experience" — strip the prefix.
+            const key = f.fieldKey.replace(/^contact\./, "");
+            map[key] = f.id;
+          }
+        }
+        console.log(
+          `GHL custom fields resolved: ${Object.keys(map).length} keys cached`,
+        );
+        return map;
+      } catch (err) {
+        console.error("GHL customFields list fetch failed:", err);
+        return {};
+      }
+    })();
+  }
+  return customFieldKeyToIdPromise;
+}
+
 async function tryRestApi(
   payload: ApplicationData,
 ): Promise<{ ok: boolean; contactId?: string }> {
   if (!GHL_LOCATION_ID || !GHL_API_KEY) return { ok: false };
 
-  const customFields = buildCustomFields(payload);
+  const keyEntries = buildCustomFields(payload);
+  const keyToId = await getCustomFieldKeyToIdMap();
+
+  // Translate {key, field_value} -> {id, field_value}. Skip any entries whose
+  // key isn't found in the GHL location (log a warning so we can fix config).
+  const customFields: Array<{ id: string; field_value: string | string[] }> = [];
+  for (const entry of keyEntries) {
+    const id = keyToId[entry.key];
+    if (id) {
+      customFields.push({ id, field_value: entry.field_value });
+    } else {
+      console.warn(
+        `GHL custom field key not found in location: "${entry.key}". Skipping.`,
+      );
+    }
+  }
 
   const body: Record<string, unknown> = {
     locationId: GHL_LOCATION_ID,
@@ -276,7 +369,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    if (hasLicense === "apprentice" && !apprenticeLicenseDate) {
+    if (hasLicense === "Apprentice" && !apprenticeLicenseDate) {
       return NextResponse.json(
         { error: "Apprentice license start date is required" },
         { status: 400 },
@@ -359,7 +452,7 @@ export async function POST(request: Request) {
     console.log(`Phone: ${phone}`);
     console.log(`Experience: ${yearsExperience} years`);
     console.log(`License: ${hasLicense}`);
-    if (hasLicense === "apprentice") {
+    if (hasLicense === "Apprentice") {
       console.log(`Apprentice License Start Date: ${apprenticeLicenseDate || "Not provided"}`);
     }
     console.log(`Current Employer: ${currentEmployer || "Not provided"}`);

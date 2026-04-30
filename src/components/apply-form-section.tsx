@@ -269,11 +269,10 @@ export function ApplyFormSection() {
                 className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select experience</option>
-                <option value="2-5">2–5 years</option>
+                <option value="2-3">2–3 years</option>
+                <option value="3-5">3–5 years</option>
                 <option value="5-10">5–10 years</option>
-                <option value="10-15">10–15 years</option>
-                <option value="15-20">15–20 years</option>
-                <option value="20+">20+ years</option>
+                <option value="10+">10+ years</option>
               </select>
             </div>
             <div>
@@ -292,15 +291,15 @@ export function ApplyFormSection() {
                 className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">Select</option>
-                <option value="apprentice">Apprentice License</option>
-                <option value="chicago-journeyperson">City of Chicago Journeyperson License</option>
-                <option value="illinois-journeyperson">Illinois State Journeyperson License</option>
-                <option value="none">None</option>
+                <option value="None">None</option>
+                <option value="Apprentice">Apprentice License</option>
+                <option value="Chicago License">City of Chicago License</option>
+                <option value="Illinois License">Illinois State License</option>
               </select>
             </div>
           </div>
 
-          {formData.hasLicense === "apprentice" && (
+          {formData.hasLicense === "Apprentice" && (
             <div>
               <label
                 htmlFor="apprenticeLicenseDate"
@@ -357,10 +356,10 @@ export function ApplyFormSection() {
                 className="w-full rounded-lg border border-white/10 bg-navy-light px-4 py-3 text-white transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               >
                 <option value="">When can you start?</option>
-                <option value="immediately">Immediately</option>
-                <option value="2-weeks">Within 2 weeks</option>
-                <option value="1-month">Within 1 month</option>
-                <option value="flexible">Flexible</option>
+                <option value="Immediately">Immediately</option>
+                <option value="2 weeks">Within 2 weeks</option>
+                <option value="1 month">Within 1 month</option>
+                <option value="Flexible">Flexible</option>
               </select>
             </div>
           </div>
