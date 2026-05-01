@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 import { Send, CheckCircle, Loader2, Upload, X, FileText } from "lucide-react";
 
@@ -51,6 +52,7 @@ export function ApplyFormSection() {
   const [formData, setFormData] = useState<FormState>(initialFormState);
   const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -101,6 +103,10 @@ export function ApplyFormSection() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!consent) {
+      setStatus("error");
+      return;
+    }
     setStatus("submitting");
 
     try {
@@ -108,6 +114,8 @@ export function ApplyFormSection() {
       Object.entries(formData).forEach(([key, value]) => {
         fd.append(key, value);
       });
+      fd.append("privacyConsent", "true");
+      fd.append("privacyConsentAt", new Date().toISOString());
       files.forEach((file) => fd.append("files", file, file.name));
 
       const response = await fetch("/api/apply", {
@@ -119,6 +127,7 @@ export function ApplyFormSection() {
         setStatus("success");
         setFormData(initialFormState);
         setFiles([]);
+        setConsent(false);
       } else {
         setStatus("error");
       }
@@ -448,23 +457,60 @@ export function ApplyFormSection() {
             />
           </div>
 
+          <div className="rounded-lg border border-white/10 bg-navy-light/40 p-4">
+            <label className="flex cursor-pointer items-start gap-3 text-sm text-zinc-300">
+              <input
+                type="checkbox"
+                name="privacyConsent"
+                checked={consent}
+                onChange={(e) => {
+                  setConsent(e.target.checked);
+                  if (status === "error") setStatus("idle");
+                }}
+                required
+                className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer rounded border-white/20 bg-navy-light text-brand focus:ring-2 focus:ring-brand focus:ring-offset-0"
+              />
+              <span>
+                I have read and agree to the{" "}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-brand-light underline hover:text-brand"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                and consent to Plumbers 911 collecting my information and
+                sharing it with contractor partners for recruiting purposes.
+                <span className="text-brand-light"> *</span>
+              </span>
+            </label>
+          </div>
+
           {status === "error" && (
             <div className="rounded-lg border border-brand/30 bg-brand/10 p-4 text-center">
               <p className="text-sm text-brand-light">
-                Something went wrong. Please try again or email us directly at{" "}
-                <a
-                  href="mailto:apply@plumbers911jobs.com"
-                  className="font-semibold underline"
-                >
-                  apply@plumbers911jobs.com
-                </a>
+                {!consent
+                  ? "Please review and accept the Privacy Policy to submit your application."
+                  : (
+                    <>
+                      Something went wrong. Please try again or email us
+                      directly at{" "}
+                      <a
+                        href="mailto:apply@plumbers911jobs.com"
+                        className="font-semibold underline"
+                      >
+                        apply@plumbers911jobs.com
+                      </a>
+                    </>
+                  )}
               </p>
             </div>
           )}
 
           <button
             type="submit"
-            disabled={status === "submitting"}
+            disabled={status === "submitting" || !consent}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-8 py-4 text-lg font-bold text-white shadow-lg shadow-brand/25 transition-all hover:bg-brand-dark hover:shadow-brand/40 disabled:opacity-50"
           >
             {status === "submitting" ? (

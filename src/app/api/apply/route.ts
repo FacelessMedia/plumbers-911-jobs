@@ -71,6 +71,11 @@ interface ApplicationData {
   currentEmployer: string | null;
   availability: string;
   message: string | null;
+  privacyConsent: {
+    accepted: boolean;
+    acceptedAt: string;
+    ipAddress: string | null;
+  };
 }
 
 type ForwardResult =
@@ -314,7 +319,7 @@ async function tryRestApi(
       }
     }
 
-    // Best-effort: attach a structured note (single-glance summary).
+    // Best-effort: attach a structured note (single-glance summary + audit trail).
     if (contactId) {
       const note = [
         `Years experience: ${payload.yearsExperience}`,
@@ -328,6 +333,10 @@ async function tryRestApi(
         files.length > 0
           ? `Files uploaded: ${filesUploaded}/${files.length} — see Resume Upload custom field.`
           : null,
+        "--- Privacy Consent ---",
+        `Accepted: ${payload.privacyConsent.accepted ? "YES" : "NO"}`,
+        `Accepted at: ${payload.privacyConsent.acceptedAt}`,
+        `IP address: ${payload.privacyConsent.ipAddress ?? "unknown"}`,
         `Submitted: ${new Date().toISOString()}`,
       ]
         .filter(Boolean)
@@ -443,6 +452,23 @@ export async function POST(request: Request) {
       );
     }
 
+    // Privacy consent is required and must be recorded for compliance.
+    const privacyConsentRaw = get("privacyConsent");
+    const privacyConsentAtRaw = get("privacyConsentAt");
+    const consentAccepted = privacyConsentRaw === "true" || privacyConsentRaw === "on";
+    if (!consentAccepted) {
+      return NextResponse.json(
+        { error: "Privacy Policy consent is required" },
+        { status: 400 },
+      );
+    }
+    const consentAt = privacyConsentAtRaw || new Date().toISOString();
+    // Best-effort IP capture for the consent audit trail.
+    const consentIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("x-real-ip") ||
+      null;
+
     // --- Files ---
     const fileEntries = formData.getAll("files").filter((f): f is File => f instanceof File);
 
@@ -478,6 +504,11 @@ export async function POST(request: Request) {
       currentEmployer: currentEmployer || null,
       availability,
       message: message || null,
+      privacyConsent: {
+        accepted: true,
+        acceptedAt: consentAt,
+        ipAddress: consentIp,
+      },
     };
 
     const forwardResult = await forwardToGHL(payload, fileEntries);

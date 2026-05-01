@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 
 export function Footer() {
@@ -37,11 +38,17 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-white/5 pt-8 text-center">
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-8 sm:flex-row">
           <p className="text-xs text-zinc-600">
             &copy; {new Date().getFullYear()} Plumbers 911 Chicago. All rights
             reserved.
           </p>
+          <Link
+            href="/privacy"
+            className="text-xs text-zinc-500 transition-colors hover:text-white"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </footer>
